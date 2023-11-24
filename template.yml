@@ -39,6 +39,20 @@ Resources:
                   - logs:GetLogEvents
                 Resource:
                   - "*"
+        - PolicyName: OpenAiApiSecretsManager
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - arn:aws:secretsmanager:us-east-1:864304056061:secret:*
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource:
+                  - arn:aws:kms:us-west-2:864304056061:key/b9b55345-0b4b-4060-96c6-cbcb48a7c696
 
   OpenAiApiGateway:
     Type: AWS::Serverless::Api
