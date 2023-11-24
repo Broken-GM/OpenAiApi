@@ -87,6 +87,6 @@ Resources:
           Properties:
             Path: /
             Method: POST
-            RestApiId: OpenAiApiGateway
+            RestApiId: !Ref OpenAiApiGateway
             Auth:
               ApiKeyRequired: true  
