@@ -1,0 +1,78 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+  
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+
+Resources:
+  OpenAiApiRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: OpenAiApiRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - apigateway.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: OpenAiApiCloudwatchLogsPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:PutResourcePolicy
+                  - logs:DeleteResourcePolicy
+                  - logs:FilterLogEvents
+                  - logs:DescribeLogStreams
+                  - logs:DescribeLogStreams
+                  - logs:GetLogEvents
+                Resource:
+                  - "*"
+
+  OpenAiApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: OpenAiApiGateway
+      StageName: prod
+      Auth:
+        AddDefaultAuthorizerToCorsPreflight: false
+        UsagePlan:
+            CreateUsagePlan: PER_API
+            UsagePlanName: OpenAiApiUsagePlan
+            Description: OpenAiApi Usage Plan
+      Cors:
+        AllowMethods: "'POST, OPTIONS, PUT, GET'"
+        AllowHeaders: "'Content-Type, X-Api-Key, Authorization'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+
+  ChatGptFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 60
+      CodeUri: app/promptGeneration
+      Handler: index.lambdaHandler
+      Runtime: nodejs16.x
+      Role: !GetAtt OpenAiApiRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        Post:
+          Type: Api 
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId: OpenAiApiGateway
+            Auth:
+              ApiKeyRequired: true  
