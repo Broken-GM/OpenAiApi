@@ -47,7 +47,7 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource:
-                  - arn:aws:secretsmanager:us-east-1:864304056061:secret:*
+                  - arn:aws:secretsmanager:us-west-2:864304056061:secret:*
               - Effect: Allow
                 Action:
                   - kms:Decrypt
